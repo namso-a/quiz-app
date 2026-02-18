@@ -143,7 +143,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
             <button
               onClick={startQuiz}
               disabled={(needsName && !studentName) || (needsEmail && !studentEmail)}
-              className="w-full bg-blue-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-brand text-white py-2.5 rounded-lg text-sm font-medium hover:bg-brand-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Start quiz
             </button>
@@ -174,7 +174,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
           <div className="flex items-center gap-3 mb-6">
             <div className="flex-1 bg-gray-200 rounded-full h-1.5">
               <div
-                className="bg-blue-500 h-1.5 rounded-full transition-all"
+                className="bg-brand h-1.5 rounded-full transition-all"
                 style={{ width: `${questions.length > 0 ? (answeredCount / questions.length) * 100 : 0}%` }}
               />
             </div>
@@ -211,7 +211,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
                         key={opt.id}
                         className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
                           selected.has(opt.id)
-                            ? 'border-blue-400 bg-blue-50'
+                            ? 'border-brand bg-brand/5'
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
@@ -234,7 +234,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
 
           <button
             onClick={submitQuiz}
-            className="mt-8 w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="mt-8 w-full bg-brand text-white py-3 rounded-xl text-sm font-medium hover:bg-brand-dark transition-colors"
           >
             Indsend quiz
           </button>

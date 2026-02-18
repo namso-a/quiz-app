@@ -26,7 +26,7 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-bold text-gray-900">Mine quizzer</h1>
         <Link
           href="/dashboard/quiz/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          className="bg-brand text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-dark transition-colors"
         >
           + Ny quiz
         </Link>

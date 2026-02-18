@@ -49,7 +49,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
         {subs.length > 0 && (
           <a
             href={`/api/results/${id}/export`}
-            className="text-sm bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg font-medium transition-colors"
+            className="text-sm bg-brand text-white px-4 py-2 rounded-lg font-medium hover:bg-brand-dark transition-colors"
           >
             Eksporter CSV
           </a>

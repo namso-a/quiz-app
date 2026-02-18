@@ -21,7 +21,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-6">
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand mb-6">
             Fredens Akademi
           </p>
           <div className="bg-white rounded-xl border border-gray-200 p-8">
@@ -46,7 +46,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <Link href="/dashboard" className="text-lg font-semibold text-gray-900">
               Quiz Platform
             </Link>
-            <span className="text-xs text-blue-600 font-medium hidden sm:block">
+            <span className="text-xs text-brand font-medium hidden sm:block">
               Fredens Akademi
             </span>
           </div>

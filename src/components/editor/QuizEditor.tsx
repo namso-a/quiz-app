@@ -145,8 +145,8 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
             onClick={togglePublish}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               quiz.is_published
-                ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                : 'bg-blue-600 text-white hover:bg-blue-700'
+                ? 'bg-brand/10 text-brand-dark hover:bg-brand/20'
+                : 'bg-brand text-white hover:bg-brand-dark'
             }`}
           >
             {quiz.is_published ? 'Udgivet' : 'Udgiv'}
@@ -156,11 +156,11 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
 
       {/* Share link (when published) */}
       {quiz.is_published && (
-        <div className="mb-6 flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-4 py-3">
-          <span className="text-sm text-green-700 flex-1 truncate">{shareUrl}</span>
+        <div className="mb-6 flex items-center gap-2 bg-brand/5 border border-brand/20 rounded-lg px-4 py-3">
+          <span className="text-sm text-brand-dark flex-1 truncate">{shareUrl}</span>
           <button
             onClick={copyLink}
-            className="text-xs font-medium text-green-700 hover:text-green-900 shrink-0"
+            className="text-xs font-medium text-brand-dark hover:text-brand shrink-0"
           >
             {copied ? 'Kopieret!' : 'Kopiér link'}
           </button>
@@ -185,17 +185,17 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
       {/* Settings */}
       <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6 grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Standard bedømmelsesmetode</label>
+          <label className="block text-xs font-medium text-gray-500 mb-1">Standardbedømmelse</label>
           <select
             value={quiz.scoring_mode}
             onChange={e => updateQuiz({ scoring_mode: e.target.value as ScoringMode })}
             className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="proportional_no_penalty">Proportional (uden straf)</option>
-            <option value="proportional_with_penalty">Proportional (med straf)</option>
+            <option value="proportional_no_penalty">Delvis point – ingen straf</option>
+            <option value="proportional_with_penalty">Delvis point – straf for fejl</option>
             <option value="all_or_nothing">Alt eller intet</option>
           </select>
-          <p className="text-xs text-gray-400 mt-1">Kan tilsidesættes per spørgsmål nedenfor</p>
+          <p className="text-xs text-gray-400 mt-1">Kan tilpasses per spørgsmål nedenfor</p>
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1">Tidsbegrænsning (minutter)</label>
@@ -322,9 +322,9 @@ function QuestionCard({ question, index, onUpdate, onDelete, onAddOption, onDele
             question.scoring_mode ? 'border-blue-300 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-400'
           }`}
         >
-          <option value="">Bedømmelse: brug quizzens standard</option>
-          <option value="proportional_no_penalty">Proportional (uden straf)</option>
-          <option value="proportional_with_penalty">Proportional (med straf)</option>
+          <option value="">Bedømmelse: quiz-standard</option>
+          <option value="proportional_no_penalty">Delvis point – ingen straf</option>
+          <option value="proportional_with_penalty">Delvis point – straf for fejl</option>
           <option value="all_or_nothing">Alt eller intet</option>
         </select>
       </div>

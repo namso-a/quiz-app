@@ -10,8 +10,8 @@ interface Props {
 }
 
 const SCORING_LABELS: Record<string, string> = {
-  proportional_no_penalty: 'Proportional (uden straf)',
-  proportional_with_penalty: 'Proportional (med straf)',
+  proportional_no_penalty: 'Delvis point – ingen straf',
+  proportional_with_penalty: 'Delvis point – straf for fejl',
   all_or_nothing: 'Alt eller intet',
 }
 
