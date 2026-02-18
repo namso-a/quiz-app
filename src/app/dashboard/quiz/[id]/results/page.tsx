@@ -42,42 +42,42 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
       <div className="flex items-center justify-between mb-6">
         <div>
           <Link href={`/dashboard/quiz/${id}`} className="text-sm text-gray-500 hover:text-gray-700">
-            ← Edit quiz
+            ← Rediger quiz
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">{q.title} — Results</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mt-1">{q.title} — Resultater</h1>
         </div>
         {subs.length > 0 && (
           <a
             href={`/api/results/${id}/export`}
             className="text-sm bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg font-medium transition-colors"
           >
-            Export CSV
+            Eksporter CSV
           </a>
         )}
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
-        <StatCard label="Submissions" value={subs.length} />
-        <StatCard label="Average score" value={avgScore ?? '—'} />
-        <StatCard label="Average %" value={avgPct != null ? `${avgPct}%` : '—'} />
+        <StatCard label="Besvarelser" value={subs.length} />
+        <StatCard label="Gennemsnitlig score" value={avgScore ?? '—'} />
+        <StatCard label="Gennemsnit %" value={avgPct != null ? `${avgPct}%` : '—'} />
       </div>
 
       {/* Submissions table */}
       {subs.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-          <p className="text-gray-500">No submissions yet.</p>
+          <p className="text-gray-500">Ingen besvarelser endnu.</p>
           {q.is_published && (
             <p className="text-sm text-gray-400 mt-2">
-              Share the quiz link with students to start collecting responses.
+              Del quizlinket med eleverne for at begynde at indsamle besvarelser.
             </p>
           )}
           {!q.is_published && (
             <p className="text-sm text-gray-400 mt-2">
               <Link href={`/dashboard/quiz/${id}`} className="text-blue-600 hover:underline">
-                Publish the quiz
+                Udgiv quizzen
               </Link>{' '}
-              to make it available to students.
+              for at gøre den tilgængelig for elever.
             </p>
           )}
         </div>
@@ -86,10 +86,10 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Student</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500">Elev</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-500">Score</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-500">%</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Submitted</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500">Indsendt</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -100,7 +100,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
                 return (
                   <tr key={sub.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3">
-                      <div className="font-medium text-gray-900">{sub.student_name || '(anonymous)'}</div>
+                      <div className="font-medium text-gray-900">{sub.student_name || '(anonym)'}</div>
                       {sub.student_email && (
                         <div className="text-gray-400 text-xs">{sub.student_email}</div>
                       )}
@@ -114,7 +114,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
                       </span>
                     </td>
                     <td className="px-4 py-3 text-gray-400 text-xs">
-                      {sub.submitted_at ? new Date(sub.submitted_at).toLocaleDateString() : '—'}
+                      {sub.submitted_at ? new Date(sub.submitted_at).toLocaleDateString('da-DK') : '—'}
                     </td>
                   </tr>
                 )

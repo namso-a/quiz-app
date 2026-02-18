@@ -27,6 +27,7 @@ export interface Quiz {
   share_code: string
   created_at: string
   updated_at: string
+  question_count?: number
 }
 
 export interface Question {

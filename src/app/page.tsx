@@ -17,13 +17,13 @@ export default function LandingPage() {
 
   function friendlyError(msg: string): string {
     if (msg.toLowerCase().includes('rate limit') || msg.toLowerCase().includes('too many')) {
-      return 'Too many attempts — please wait a few minutes before trying again.'
+      return 'For mange forsøg — vent venligst et par minutter og prøv igen.'
     }
     if (msg.toLowerCase().includes('email not confirmed')) {
-      return 'Please confirm your email address before signing in.'
+      return 'Bekræft venligst din e-mailadresse, inden du logger ind.'
     }
     if (msg.toLowerCase().includes('invalid login')) {
-      return 'Incorrect email or password.'
+      return 'Forkert e-mail eller adgangskode.'
     }
     return msg
   }
@@ -64,20 +64,20 @@ export default function LandingPage() {
       <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md text-center">
           <div className="text-4xl mb-4">📬</div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Check your email</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Tjek din e-mail</h2>
           <p className="text-gray-600 text-sm mb-4">
-            We sent a confirmation link to <strong>{email}</strong>.
-            Click it to verify your address.
+            Vi har sendt et bekræftelseslink til <strong>{email}</strong>.
+            Klik på det for at bekræfte din e-mailadresse.
           </p>
           <p className="text-gray-500 text-sm">
-            After confirming, your account will be reviewed by an administrator
-            before you can access the platform.
+            Når du har bekræftet, vil din konto blive gennemgået af en administrator,
+            inden du får adgang til platformen.
           </p>
           <button
             onClick={() => { setSignupDone(false); setMode('login') }}
             className="mt-6 text-sm text-blue-600 hover:underline"
           >
-            Back to sign in
+            Tilbage til log ind
           </button>
         </div>
       </main>
@@ -94,7 +94,7 @@ export default function LandingPage() {
           </p>
           <h1 className="text-3xl font-bold text-gray-900">Quiz Platform</h1>
           <p className="mt-2 text-gray-500 text-sm">
-            Proportional credit. Fair grading. Simple workflow.
+            Proportional kredit. Retfærdig bedømmelse. Enkel arbejdsgang.
           </p>
         </div>
 
@@ -108,7 +108,7 @@ export default function LandingPage() {
               }`}
               onClick={() => { setMode('login'); setError(null) }}
             >
-              Sign in
+              Log ind
             </button>
             <button
               className={`pb-3 px-4 text-sm font-medium border-b-2 transition-colors ${
@@ -118,38 +118,38 @@ export default function LandingPage() {
               }`}
               onClick={() => { setMode('signup'); setError(null) }}
             >
-              Request access
+              Anmod om adgang
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Navn</label>
                 <input
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  placeholder="Your name"
+                  placeholder="Dit navn"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                placeholder="you@fredens-akademi.dk"
+                placeholder="dig@fredens-akademi.dk"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Adgangskode</label>
               <input
                 type="password"
                 value={password}
@@ -171,15 +171,15 @@ export default function LandingPage() {
               className="w-full bg-blue-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading
-                ? 'Please wait…'
+                ? 'Vent venligst…'
                 : mode === 'login'
-                ? 'Sign in'
-                : 'Request access'}
+                ? 'Log ind'
+                : 'Anmod om adgang'}
             </button>
 
             {mode === 'signup' && (
               <p className="text-xs text-gray-400 text-center">
-                Access requests are reviewed by an administrator.
+                Adgangsanmodninger gennemgås af en administrator.
               </p>
             )}
           </form>

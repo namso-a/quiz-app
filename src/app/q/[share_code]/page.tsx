@@ -32,8 +32,8 @@ export default async function StudentQuizPage({
           <h1 className="text-xl font-bold text-gray-900 mb-2">{quiz.title}</h1>
           <p className="text-gray-500">
             {isBeforeOpen
-              ? `This quiz opens on ${new Date(quiz.opens_at!).toLocaleDateString()}.`
-              : 'This quiz has closed.'}
+              ? `Denne quiz åbner den ${new Date(quiz.opens_at!).toLocaleDateString('da-DK')}.`
+              : 'Denne quiz er lukket.'}
           </p>
         </div>
       </main>

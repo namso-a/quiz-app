@@ -51,7 +51,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
       .single()
 
     if (err || !data) {
-      setError('Failed to start quiz. Please try again.')
+      setError('Kunne ikke starte quizzen. Prøv igen.')
       return
     }
 
@@ -97,7 +97,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
     })
 
     if (!res.ok) {
-      setError('Submission failed. Please try again.')
+      setError('Indsendelse mislykkedes. Prøv igen.')
       setPhase('quiz')
       return
     }
@@ -117,7 +117,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
           <div className="space-y-4">
             {needsName && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Navn</label>
                 <input
                   type="text"
                   value={studentName}
@@ -129,7 +129,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
             )}
             {needsEmail && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
                 <input
                   type="email"
                   value={studentEmail}
@@ -155,10 +155,11 @@ export default function QuizPlayer({ quiz, questions }: Props) {
 
   // Quiz taking phase
   if (phase === 'quiz') {
+    const answeredCount = questions.filter(q => (answers[q.id]?.size ?? 0) > 0).length
     return (
       <main className="min-h-screen bg-gray-50 py-8 px-4">
         <div className="max-w-2xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-2">
             <h1 className="text-xl font-bold text-gray-900">{quiz.title}</h1>
             {quiz.time_limit_minutes && startedAt && (
               <CountdownTimer
@@ -167,6 +168,19 @@ export default function QuizPlayer({ quiz, questions }: Props) {
                 onExpire={submitQuiz}
               />
             )}
+          </div>
+
+          {/* Progress indicator */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+              <div
+                className="bg-blue-500 h-1.5 rounded-full transition-all"
+                style={{ width: `${questions.length > 0 ? (answeredCount / questions.length) * 100 : 0}%` }}
+              />
+            </div>
+            <span className="text-xs text-gray-400 shrink-0">
+              {answeredCount} / {questions.length} besvaret
+            </span>
           </div>
 
           <div className="space-y-6">
@@ -186,7 +200,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
                     const effectiveMode = q.scoring_mode ?? quiz.scoring_mode
                     return effectiveMode === 'proportional_no_penalty' && q.correct_count > 1 ? (
                       <p className="text-xs text-blue-600 mb-2">
-                        Select up to {q.correct_count} answer{q.correct_count > 1 ? 's' : ''}
+                        Vælg op til {q.correct_count} svar
                       </p>
                     ) : null
                   })()}
@@ -222,7 +236,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
             onClick={submitQuiz}
             className="mt-8 w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors"
           >
-            Submit quiz
+            Indsend quiz
           </button>
         </div>
       </main>
@@ -232,7 +246,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
   // Submitting phase
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <p className="text-gray-500">Submitting your answers…</p>
+      <p className="text-gray-500">Indsender dine svar…</p>
     </main>
   )
 }

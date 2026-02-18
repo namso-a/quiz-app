@@ -26,10 +26,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </p>
           <div className="bg-white rounded-xl border border-gray-200 p-8">
             <div className="text-3xl mb-4">⏳</div>
-            <h2 className="text-lg font-bold text-gray-900 mb-2">Awaiting approval</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-2">Afventer godkendelse</h2>
             <p className="text-sm text-gray-500 mb-6">
-              Your account has been created. An administrator needs to approve your
-              access before you can use the platform. This usually happens within one business day.
+              Din konto er oprettet. En administrator skal godkende din adgang,
+              inden du kan bruge platformen. Det sker typisk inden for én arbejdsdag.
             </p>
             <SignOutButton />
           </div>

@@ -5,13 +5,13 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Quiz App',
-  description: 'Create and administer quizzes with partial credit scoring',
+  title: 'Quiz Platform – Fredens Akademi',
+  description: 'Opret og administrer quizzer med proportional delvis kredit',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="da">
       <body className={inter.className}>
         {children}
       </body>

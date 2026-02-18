@@ -18,6 +18,7 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
   const [copied, setCopied] = useState(false)
 
   const shareUrl = `${appUrl}/q/${quiz.share_code}`
+  const totalPoints = quiz.questions.reduce((sum, q) => sum + (q.points ?? 0), 0)
 
   // Debounced quiz patch
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -134,7 +135,12 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
           ← Dashboard
         </Link>
         <div className="flex items-center gap-3">
-          {saving && <span className="text-xs text-gray-400">Saving…</span>}
+          {quiz.questions.length > 0 && (
+            <span className="text-xs text-gray-400">
+              {quiz.questions.length} spørgsmål · {totalPoints} point i alt
+            </span>
+          )}
+          {saving && <span className="text-xs text-gray-400">Gemmer…</span>}
           <button
             onClick={togglePublish}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -143,7 +149,7 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
                 : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
           >
-            {quiz.is_published ? 'Published' : 'Publish'}
+            {quiz.is_published ? 'Udgivet' : 'Udgiv'}
           </button>
         </div>
       </div>
@@ -156,7 +162,7 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
             onClick={copyLink}
             className="text-xs font-medium text-green-700 hover:text-green-900 shrink-0"
           >
-            {copied ? 'Copied!' : 'Copy link'}
+            {copied ? 'Kopieret!' : 'Kopiér link'}
           </button>
         </div>
       )}
@@ -165,13 +171,13 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
       <input
         value={quiz.title}
         onChange={e => updateQuiz({ title: e.target.value })}
-        placeholder="Quiz title"
+        placeholder="Quizzens titel"
         className="w-full text-2xl font-bold text-gray-900 bg-transparent border-0 border-b-2 border-transparent focus:border-blue-500 focus:outline-none pb-1 mb-2"
       />
       <textarea
         value={quiz.description ?? ''}
         onChange={e => updateQuiz({ description: e.target.value || null })}
-        placeholder="Description (optional)"
+        placeholder="Beskrivelse (valgfri)"
         rows={2}
         className="w-full text-sm text-gray-500 bg-transparent border-0 focus:outline-none resize-none mb-6"
       />
@@ -179,26 +185,26 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
       {/* Settings */}
       <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6 grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Default scoring mode</label>
+          <label className="block text-xs font-medium text-gray-500 mb-1">Standard bedømmelsesmetode</label>
           <select
             value={quiz.scoring_mode}
             onChange={e => updateQuiz({ scoring_mode: e.target.value as ScoringMode })}
             className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="proportional_no_penalty">Proportional (no penalty)</option>
-            <option value="proportional_with_penalty">Proportional (with penalty)</option>
-            <option value="all_or_nothing">All or nothing</option>
+            <option value="proportional_no_penalty">Proportional (uden straf)</option>
+            <option value="proportional_with_penalty">Proportional (med straf)</option>
+            <option value="all_or_nothing">Alt eller intet</option>
           </select>
-          <p className="text-xs text-gray-400 mt-1">Per-question overrides available below</p>
+          <p className="text-xs text-gray-400 mt-1">Kan tilsidesættes per spørgsmål nedenfor</p>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Time limit (minutes)</label>
+          <label className="block text-xs font-medium text-gray-500 mb-1">Tidsbegrænsning (minutter)</label>
           <input
             type="number"
             min={1}
             value={quiz.time_limit_minutes ?? ''}
             onChange={e => updateQuiz({ time_limit_minutes: e.target.value ? Number(e.target.value) : null })}
-            placeholder="No limit"
+            placeholder="Ingen begrænsning"
             className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -210,7 +216,7 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
             onChange={e => updateQuiz({ require_name: e.target.checked })}
             className="rounded"
           />
-          <label htmlFor="require_name" className="text-sm text-gray-700">Require name</label>
+          <label htmlFor="require_name" className="text-sm text-gray-700">Kræv navn</label>
         </div>
         <div className="flex items-center gap-2">
           <input
@@ -220,7 +226,7 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
             onChange={e => updateQuiz({ require_email: e.target.checked })}
             className="rounded"
           />
-          <label htmlFor="require_email" className="text-sm text-gray-700">Require email</label>
+          <label htmlFor="require_email" className="text-sm text-gray-700">Kræv e-mail</label>
         </div>
         <div className="flex items-center gap-2">
           <input
@@ -230,7 +236,7 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
             onChange={e => updateQuiz({ show_answers_after: e.target.checked })}
             className="rounded"
           />
-          <label htmlFor="show_answers_after" className="text-sm text-gray-700">Show answers after submit</label>
+          <label htmlFor="show_answers_after" className="text-sm text-gray-700">Vis svar efter indsendelse</label>
         </div>
       </div>
 
@@ -254,7 +260,7 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
         onClick={addQuestion}
         className="mt-4 w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-colors"
       >
-        + Add question
+        + Tilføj spørgsmål
       </button>
     </div>
   )
@@ -280,7 +286,7 @@ function QuestionCard({ question, index, onUpdate, onDelete, onAddOption, onDele
         <textarea
           value={question.question_text}
           onChange={e => onUpdate({ question_text: e.target.value })}
-          placeholder="Question text"
+          placeholder="Spørgsmålstekst"
           rows={2}
           className="flex-1 text-sm text-gray-900 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
         />
@@ -296,8 +302,8 @@ function QuestionCard({ question, index, onUpdate, onDelete, onAddOption, onDele
           <span className="text-xs text-gray-400">pts</span>
           {confirmDelete ? (
             <>
-              <button onClick={onDelete} className="text-xs text-red-600 font-medium px-2">Confirm</button>
-              <button onClick={() => setConfirmDelete(false)} className="text-xs text-gray-400 px-1">Cancel</button>
+              <button onClick={onDelete} className="text-xs text-red-600 font-medium px-2">Bekræft</button>
+              <button onClick={() => setConfirmDelete(false)} className="text-xs text-gray-400 px-1">Annuller</button>
             </>
           ) : (
             <button onClick={() => setConfirmDelete(true)} className="text-gray-300 hover:text-red-400 transition-colors ml-1">
@@ -316,10 +322,10 @@ function QuestionCard({ question, index, onUpdate, onDelete, onAddOption, onDele
             question.scoring_mode ? 'border-blue-300 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-400'
           }`}
         >
-          <option value="">Scoring: use quiz default</option>
-          <option value="proportional_no_penalty">Proportional (no penalty)</option>
-          <option value="proportional_with_penalty">Proportional (with penalty)</option>
-          <option value="all_or_nothing">All or nothing</option>
+          <option value="">Bedømmelse: brug quizzens standard</option>
+          <option value="proportional_no_penalty">Proportional (uden straf)</option>
+          <option value="proportional_with_penalty">Proportional (med straf)</option>
+          <option value="all_or_nothing">Alt eller intet</option>
         </select>
       </div>
 
@@ -336,7 +342,7 @@ function QuestionCard({ question, index, onUpdate, onDelete, onAddOption, onDele
             <input
               value={option.option_text}
               onChange={e => onUpdateOption(option.id, { option_text: e.target.value })}
-              placeholder="Answer option"
+              placeholder="Svarmulighed"
               className={`flex-1 text-sm border rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
                 option.is_correct
                   ? 'border-green-300 bg-green-50 focus:ring-green-400'
@@ -359,7 +365,7 @@ function QuestionCard({ question, index, onUpdate, onDelete, onAddOption, onDele
             onClick={onAddOption}
             className="text-xs text-gray-400 hover:text-blue-600 transition-colors ml-6"
           >
-            + Add option
+            + Tilføj svarmulighed
           </button>
         )}
       </div>

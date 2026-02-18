@@ -64,7 +64,7 @@ export default async function StudentResultPage({
           )}
           <div className="text-5xl font-bold text-blue-600 mb-1">{pct}%</div>
           <p className="text-gray-500">
-            {submission.total_score} / {submission.max_possible_score} points
+            {submission.total_score} / {submission.max_possible_score} point
           </p>
         </div>
 
@@ -106,7 +106,7 @@ export default async function StudentResultPage({
 
         <div className="mt-6 text-center">
           <Link href={`/q/${share_code}`} className="text-sm text-blue-600 hover:underline">
-            Take quiz again
+            Tag quizzen igen
           </Link>
         </div>
       </div>

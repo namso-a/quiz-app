@@ -10,9 +10,9 @@ interface Props {
 }
 
 const SCORING_LABELS: Record<string, string> = {
-  proportional_no_penalty: 'Proportional (no penalty)',
-  proportional_with_penalty: 'Proportional (with penalty)',
-  all_or_nothing: 'All or nothing',
+  proportional_no_penalty: 'Proportional (uden straf)',
+  proportional_with_penalty: 'Proportional (med straf)',
+  all_or_nothing: 'Alt eller intet',
 }
 
 export default function QuizList({ initialQuizzes }: Props) {
@@ -43,9 +43,9 @@ export default function QuizList({ initialQuizzes }: Props) {
   if (quizzes.length === 0) {
     return (
       <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-        <p className="text-gray-500 mb-4">You haven&apos;t created any quizzes yet.</p>
+        <p className="text-gray-500 mb-4">Du har ikke oprettet nogen quizzer endnu.</p>
         <Link href="/dashboard/quiz/new" className="text-blue-600 font-medium hover:underline">
-          Create your first quiz
+          Opret din første quiz
         </Link>
       </div>
     )
@@ -56,7 +56,7 @@ export default function QuizList({ initialQuizzes }: Props) {
       {/* Active quizzes */}
       {active.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-xl border border-gray-200 mb-4">
-          <p className="text-gray-400 text-sm">All quizzes are archived.</p>
+          <p className="text-gray-400 text-sm">Alle quizzer er arkiveret.</p>
         </div>
       ) : (
         <div className="grid gap-3 mb-6">
@@ -82,7 +82,7 @@ export default function QuizList({ initialQuizzes }: Props) {
             className="text-sm text-gray-400 hover:text-gray-600 mb-3 flex items-center gap-1"
           >
             <span>{showArchived ? '▾' : '▸'}</span>
-            Archived ({archived.length})
+            Arkiveret ({archived.length})
           </button>
           {showArchived && (
             <div className="grid gap-3">
@@ -92,7 +92,7 @@ export default function QuizList({ initialQuizzes }: Props) {
                   quiz={quiz}
                   confirmDelete={confirmDelete}
                   onArchive={() => unarchiveQuiz(quiz.id)}
-                  archiveLabel="Unarchive"
+                  archiveLabel="Gendan"
                   onDeleteRequest={() => setConfirmDelete(quiz.id)}
                   onDeleteCancel={() => setConfirmDelete(null)}
                   onDeleteConfirm={() => deleteQuiz(quiz.id)}
@@ -116,7 +116,7 @@ interface CardProps {
   onDeleteConfirm: () => void
 }
 
-function QuizCard({ quiz, confirmDelete, archiveLabel = 'Archive', onArchive, onDeleteRequest, onDeleteCancel, onDeleteConfirm }: CardProps) {
+function QuizCard({ quiz, confirmDelete, archiveLabel = 'Arkiver', onArchive, onDeleteRequest, onDeleteCancel, onDeleteConfirm }: CardProps) {
   const isConfirming = confirmDelete === quiz.id
 
   return (
@@ -130,20 +130,26 @@ function QuizCard({ quiz, confirmDelete, archiveLabel = 'Archive', onArchive, on
             <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${
               quiz.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
             }`}>
-              {quiz.is_published ? 'Published' : 'Draft'}
+              {quiz.is_published ? 'Udgivet' : 'Kladde'}
             </span>
           )}
           {quiz.is_archived && (
             <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-yellow-100 text-yellow-700 shrink-0">
-              Archived
+              Arkiveret
             </span>
           )}
         </div>
         {quiz.description && (
           <p className="text-sm text-gray-500 mt-0.5 truncate">{quiz.description}</p>
         )}
-        <p className="text-xs text-gray-400 mt-1">
-          {SCORING_LABELS[quiz.scoring_mode] ?? quiz.scoring_mode}
+        <p className="text-xs text-gray-400 mt-1 flex items-center gap-2">
+          <span>{SCORING_LABELS[quiz.scoring_mode] ?? quiz.scoring_mode}</span>
+          {quiz.question_count !== undefined && (
+            <span className="text-gray-300">·</span>
+          )}
+          {quiz.question_count !== undefined && (
+            <span>{quiz.question_count} spørgsmål</span>
+          )}
         </p>
       </div>
 
@@ -154,13 +160,13 @@ function QuizCard({ quiz, confirmDelete, archiveLabel = 'Archive', onArchive, on
               href={`/dashboard/quiz/${quiz.id}/results`}
               className="text-sm text-gray-500 hover:text-gray-700"
             >
-              Results
+              Resultater
             </Link>
             <Link
               href={`/dashboard/quiz/${quiz.id}`}
               className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg font-medium transition-colors"
             >
-              Edit
+              Rediger
             </Link>
           </>
         )}
@@ -170,7 +176,7 @@ function QuizCard({ quiz, confirmDelete, archiveLabel = 'Archive', onArchive, on
           className="text-sm text-gray-400 hover:text-gray-600 px-2 py-1.5 transition-colors"
           title={archiveLabel}
         >
-          {archiveLabel === 'Archive' ? '📦' : '↩'}
+          {archiveLabel === 'Arkiver' ? '📦' : '↩'}
         </button>
 
         {isConfirming ? (
@@ -179,20 +185,20 @@ function QuizCard({ quiz, confirmDelete, archiveLabel = 'Archive', onArchive, on
               onClick={onDeleteConfirm}
               className="text-xs text-red-600 font-medium px-2 py-1 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
             >
-              Delete
+              Slet
             </button>
             <button
               onClick={onDeleteCancel}
               className="text-xs text-gray-400 px-1 hover:text-gray-600"
             >
-              Cancel
+              Annuller
             </button>
           </div>
         ) : (
           <button
             onClick={onDeleteRequest}
             className="text-gray-300 hover:text-red-400 transition-colors text-base px-1"
-            title="Delete quiz"
+            title="Slet quiz"
           >
             ✕
           </button>
