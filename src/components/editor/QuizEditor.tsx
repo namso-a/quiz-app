@@ -236,7 +236,17 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
             onChange={e => updateQuiz({ show_answers_after: e.target.checked })}
             className="rounded"
           />
-          <label htmlFor="show_answers_after" className="text-sm text-gray-700">Vis svar efter indsendelse</label>
+          <label htmlFor="show_answers_after" className="text-sm text-gray-700">Vis score og svar efter indsendelse</label>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="allow_retake"
+            checked={quiz.allow_retake}
+            onChange={e => updateQuiz({ allow_retake: e.target.checked })}
+            className="rounded"
+          />
+          <label htmlFor="allow_retake" className="text-sm text-gray-700">Tillad gentagelse</label>
         </div>
       </div>
 

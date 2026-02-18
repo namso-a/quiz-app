@@ -20,6 +20,7 @@ export interface Quiz {
   require_name: boolean
   require_email: boolean
   show_answers_after: boolean
+  allow_retake: boolean
   opens_at: string | null
   closes_at: string | null
   is_published: boolean
