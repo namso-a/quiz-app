@@ -179,7 +179,7 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
       {/* Settings */}
       <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6 grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Scoring mode</label>
+          <label className="block text-xs font-medium text-gray-500 mb-1">Default scoring mode</label>
           <select
             value={quiz.scoring_mode}
             onChange={e => updateQuiz({ scoring_mode: e.target.value as ScoringMode })}
@@ -189,6 +189,7 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
             <option value="proportional_with_penalty">Proportional (with penalty)</option>
             <option value="all_or_nothing">All or nothing</option>
           </select>
+          <p className="text-xs text-gray-400 mt-1">Per-question overrides available below</p>
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1">Time limit (minutes)</label>
@@ -304,6 +305,22 @@ function QuestionCard({ question, index, onUpdate, onDelete, onAddOption, onDele
             </button>
           )}
         </div>
+      </div>
+
+      {/* Per-question scoring mode override */}
+      <div className="ml-7 mb-3">
+        <select
+          value={question.scoring_mode ?? ''}
+          onChange={e => onUpdate({ scoring_mode: (e.target.value as ScoringMode) || null })}
+          className={`text-xs border rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400 ${
+            question.scoring_mode ? 'border-blue-300 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-400'
+          }`}
+        >
+          <option value="">Scoring: use quiz default</option>
+          <option value="proportional_no_penalty">Proportional (no penalty)</option>
+          <option value="proportional_with_penalty">Proportional (with penalty)</option>
+          <option value="all_or_nothing">All or nothing</option>
+        </select>
       </div>
 
       <div className="space-y-2 ml-7">

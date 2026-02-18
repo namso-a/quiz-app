@@ -48,20 +48,21 @@ export async function POST(request: NextRequest) {
   }
 
   // 4. Fetch all questions + correct answers using admin client (bypasses RLS)
+  // Also fetch scoring_mode per question — null means use quiz default
   const { data: questions, error: qError } = await adminClient
     .from('questions')
-    .select('id, points, answer_options(id, is_correct)')
+    .select('id, points, scoring_mode, answer_options(id, is_correct)')
     .eq('quiz_id', submission.quiz_id)
 
   if (qError || !questions) {
     return NextResponse.json({ error: 'Failed to load questions' }, { status: 500 })
   }
 
-  // 5. Run scoring
+  // 5. Run scoring — per-question scoring_mode overrides quiz default when set
   const scoringInput = questions.map(q => ({
     id: q.id,
     points: q.points as number,
-    scoring_mode: quiz.scoring_mode,
+    scoring_mode: (q.scoring_mode ?? quiz.scoring_mode) as ScoringMode,
     all_options: q.answer_options as { id: string; is_correct: boolean }[],
   }))
 

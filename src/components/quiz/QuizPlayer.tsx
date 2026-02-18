@@ -181,11 +181,15 @@ export default function QuizPlayer({ quiz, questions }: Props) {
                     <span className="text-xs text-gray-400 shrink-0 ml-4">{q.points} pts</span>
                   </div>
 
-                  {quiz.scoring_mode === 'proportional_no_penalty' && q.correct_count > 1 && (
-                    <p className="text-xs text-blue-600 mb-2">
-                      Select up to {q.correct_count} answer{q.correct_count > 1 ? 's' : ''}
-                    </p>
-                  )}
+                  {/* Effective scoring mode: question override or quiz default */}
+                  {(() => {
+                    const effectiveMode = q.scoring_mode ?? quiz.scoring_mode
+                    return effectiveMode === 'proportional_no_penalty' && q.correct_count > 1 ? (
+                      <p className="text-xs text-blue-600 mb-2">
+                        Select up to {q.correct_count} answer{q.correct_count > 1 ? 's' : ''}
+                      </p>
+                    ) : null
+                  })()}
 
                   <div className="space-y-2">
                     {q.answer_options.map(opt => (
@@ -200,7 +204,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
                         <input
                           type="checkbox"
                           checked={selected.has(opt.id)}
-                          onChange={() => toggleAnswer(q.id, opt.id, q.correct_count, quiz.scoring_mode)}
+                          onChange={() => toggleAnswer(q.id, opt.id, q.correct_count, q.scoring_mode ?? quiz.scoring_mode)}
                           className="rounded text-blue-600"
                         />
                         <span className="text-sm text-gray-700">{opt.option_text}</span>

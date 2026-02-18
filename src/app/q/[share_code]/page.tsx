@@ -40,10 +40,10 @@ export default async function StudentQuizPage({
     )
   }
 
-  // Fetch questions and options, stripping is_correct
+  // Fetch questions and options, stripping is_correct but keeping scoring_mode
   const { data: questions } = await supabase
     .from('questions')
-    .select('id, quiz_id, question_text, points, sort_order, answer_options(id, question_id, option_text, sort_order, is_correct)')
+    .select('id, quiz_id, question_text, points, sort_order, scoring_mode, answer_options(id, question_id, option_text, sort_order, is_correct)')
     .eq('quiz_id', quiz.id)
     .order('sort_order')
 
@@ -57,6 +57,7 @@ export default async function StudentQuizPage({
       points: q.points as number,
       sort_order: q.sort_order as number,
       correct_count,
+      scoring_mode: (q.scoring_mode ?? null) as import('@/types/database').ScoringMode | null,
       answer_options: opts
         .sort((a, b) => a.sort_order - b.sort_order)
         .map(({ id, question_id, option_text, sort_order }) => ({ id, question_id, option_text, sort_order })),

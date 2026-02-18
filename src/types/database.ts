@@ -23,6 +23,7 @@ export interface Quiz {
   opens_at: string | null
   closes_at: string | null
   is_published: boolean
+  is_archived: boolean
   share_code: string
   created_at: string
   updated_at: string
@@ -33,6 +34,8 @@ export interface Question {
   quiz_id: string
   question_text: string
   points: number
+  // null = inherit the quiz's scoring_mode
+  scoring_mode: ScoringMode | null
   sort_order: number
   created_at: string
 }
@@ -53,7 +56,7 @@ export interface AnswerOptionPublic {
   sort_order: number
 }
 
-// Public question type with correct_count for proportional_no_penalty selection limit
+// Public question type: correct_count for selection limit, scoring_mode for UI hints
 export interface QuestionPublic {
   id: string
   quiz_id: string
@@ -61,6 +64,7 @@ export interface QuestionPublic {
   points: number
   sort_order: number
   correct_count: number
+  scoring_mode: ScoringMode | null  // null = use quiz default
   answer_options: AnswerOptionPublic[]
 }
 

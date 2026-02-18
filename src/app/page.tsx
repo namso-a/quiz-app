@@ -13,6 +13,20 @@ export default function LandingPage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [signupDone, setSignupDone] = useState(false)
+
+  function friendlyError(msg: string): string {
+    if (msg.toLowerCase().includes('rate limit') || msg.toLowerCase().includes('too many')) {
+      return 'Too many attempts — please wait a few minutes before trying again.'
+    }
+    if (msg.toLowerCase().includes('email not confirmed')) {
+      return 'Please confirm your email address before signing in.'
+    }
+    if (msg.toLowerCase().includes('invalid login')) {
+      return 'Incorrect email or password.'
+    }
+    return msg
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -22,37 +36,65 @@ export default function LandingPage() {
     if (mode === 'login') {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) {
-        setError(error.message)
+        setError(friendlyError(error.message))
       } else {
         router.push('/dashboard')
         router.refresh()
       }
     } else {
-      const { data, error } = await supabase.auth.signUp({ email, password })
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { name: name || email.split('@')[0] } },
+      })
       if (error) {
-        setError(error.message)
-      } else if (data.user) {
-        // Create teacher record
-        await supabase.from('teachers').upsert({
-          id: data.user.id,
-          name: name || email.split('@')[0],
-          email,
-        })
-        router.push('/dashboard')
-        router.refresh()
+        setError(friendlyError(error.message))
+      } else {
+        // Don't create a teacher record or redirect — admin must approve.
+        setSignupDone(true)
       }
     }
 
     setLoading(false)
   }
 
+  // After signup: show confirmation message instead of redirecting
+  if (signupDone) {
+    return (
+      <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md text-center">
+          <div className="text-4xl mb-4">📬</div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Check your email</h2>
+          <p className="text-gray-600 text-sm mb-4">
+            We sent a confirmation link to <strong>{email}</strong>.
+            Click it to verify your address.
+          </p>
+          <p className="text-gray-500 text-sm">
+            After confirming, your account will be reviewed by an administrator
+            before you can access the platform.
+          </p>
+          <button
+            onClick={() => { setSignupDone(false); setMode('login') }}
+            className="mt-6 text-sm text-blue-600 hover:underline"
+          >
+            Back to sign in
+          </button>
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Branding */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Quiz App</h1>
-          <p className="mt-2 text-gray-600">
-            Create quizzes with automatic partial credit scoring
+          <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-1">
+            Fredens Akademi
+          </p>
+          <h1 className="text-3xl font-bold text-gray-900">Quiz Platform</h1>
+          <p className="mt-2 text-gray-500 text-sm">
+            Proportional credit. Fair grading. Simple workflow.
           </p>
         </div>
 
@@ -64,7 +106,7 @@ export default function LandingPage() {
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
-              onClick={() => setMode('login')}
+              onClick={() => { setMode('login'); setError(null) }}
             >
               Sign in
             </button>
@@ -74,18 +116,16 @@ export default function LandingPage() {
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
-              onClick={() => setMode('signup')}
+              onClick={() => { setMode('signup'); setError(null) }}
             >
-              Create account
+              Request access
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Name
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                 <input
                   type="text"
                   value={name}
@@ -97,23 +137,19 @@ export default function LandingPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                placeholder="you@school.edu"
+                placeholder="you@fredens-akademi.dk"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
               <input
                 type="password"
                 value={password}
@@ -134,8 +170,18 @@ export default function LandingPage() {
               disabled={loading}
               className="w-full bg-blue-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create account'}
+              {loading
+                ? 'Please wait…'
+                : mode === 'login'
+                ? 'Sign in'
+                : 'Request access'}
             </button>
+
+            {mode === 'signup' && (
+              <p className="text-xs text-gray-400 text-center">
+                Access requests are reviewed by an administrator.
+              </p>
+            )}
           </form>
         </div>
       </div>
