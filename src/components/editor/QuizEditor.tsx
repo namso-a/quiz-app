@@ -17,7 +17,7 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
   const [saving, setSaving] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  const shareUrl = `${appUrl}/q/${quiz.share_code}`
+  const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : appUrl}/q/${quiz.share_code}`
   const totalPoints = quiz.questions.reduce((sum, q) => sum + (q.points ?? 0), 0)
 
   // Debounced quiz patch
