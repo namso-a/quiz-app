@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import Image from 'next/image'
 import SignOutButton from './SignOutButton'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -22,7 +21,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md text-center">
-          <Image src="/fm_logo.png" alt="Fredens Akademi" width={48} height={48} className="object-contain mx-auto mb-3" />
           <p className="text-xs font-semibold uppercase tracking-widest text-brand mb-6">
             Fredens Akademi
           </p>
@@ -44,9 +42,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-2.5">
-            <Image src="/fm_logo.png" alt="Fredens Akademi" width={32} height={32} className="object-contain" />
-            <span className="text-sm font-semibold text-gray-800 hidden sm:block">Fredens Akademi</span>
+          <Link href="/dashboard" className="text-sm font-semibold text-gray-800">
+            Fredens Akademi
           </Link>
           <SignOutButton />
         </div>

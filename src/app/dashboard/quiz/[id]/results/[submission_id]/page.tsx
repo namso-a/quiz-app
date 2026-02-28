@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { adminClient } from '@/lib/supabase/admin'
 import { scoreQuestion } from '@/lib/scoring'
 import Link from 'next/link'
+import CopyResultLink from './CopyResultLink'
 import type { ScoringMode } from '@/types/database'
 
 export default async function SubmissionDetailPage({
@@ -18,7 +19,7 @@ export default async function SubmissionDetailPage({
   // Verify quiz ownership
   const { data: quiz } = await supabase
     .from('quizzes')
-    .select('id, title, scoring_mode, teacher_id')
+    .select('id, title, scoring_mode, share_code, teacher_id')
     .eq('id', quizId)
     .eq('teacher_id', user.id)
     .single()
@@ -63,12 +64,15 @@ export default async function SubmissionDetailPage({
     <div className="max-w-2xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <Link
-          href={`/dashboard/quiz/${quizId}/results`}
-          className="text-sm text-gray-500 hover:text-gray-700"
-        >
-          ← Tilbage til resultater
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link
+            href={`/dashboard/quiz/${quizId}/results`}
+            className="text-sm text-gray-500 hover:text-gray-700"
+          >
+            ← Tilbage til resultater
+          </Link>
+          <CopyResultLink shareCode={quiz.share_code} submissionId={submission_id} />
+        </div>
         <h1 className="text-2xl font-bold text-gray-900 mt-1">{quiz.title}</h1>
         <div className="flex items-center gap-4 mt-2">
           <span className="font-medium text-gray-800">

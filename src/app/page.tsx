@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+
 
 export default function LandingPage() {
   const supabase = createClient()
@@ -90,7 +90,6 @@ export default function LandingPage() {
       <div className="w-full max-w-md">
         {/* Branding */}
         <div className="text-center mb-8">
-          <Image src="/fm_logo.png" alt="Fredens Akademi" width={56} height={56} className="object-contain mx-auto mb-3" />
           <p className="text-xs font-semibold uppercase tracking-widest text-brand mb-1">
             Fredens Akademi
           </p>

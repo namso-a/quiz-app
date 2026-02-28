@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { isQuizOpen } from '@/lib/time'
 import QuizPlayer from '@/components/quiz/QuizPlayer'
-import Image from 'next/image'
 import type { QuestionPublic } from '@/types/database'
 
 export default async function StudentQuizPage({
@@ -30,7 +29,6 @@ export default async function StudentQuizPage({
     return (
       <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl border border-gray-200 p-8 max-w-md text-center">
-          <Image src="/fm_logo.png" alt="Fredens Akademi" width={40} height={40} className="object-contain mx-auto mb-4" />
           <h1 className="text-xl font-bold text-gray-900 mb-2">{quiz.title}</h1>
           <p className="text-gray-500">
             {isBeforeOpen
