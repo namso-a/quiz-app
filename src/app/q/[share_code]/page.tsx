@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { isQuizOpen } from '@/lib/time'
 import QuizPlayer from '@/components/quiz/QuizPlayer'
+import Image from 'next/image'
 import type { QuestionPublic } from '@/types/database'
 
 export default async function StudentQuizPage({
@@ -29,6 +30,7 @@ export default async function StudentQuizPage({
     return (
       <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl border border-gray-200 p-8 max-w-md text-center">
+          <Image src="/fm_logo.png" alt="Fredens Akademi" width={40} height={40} className="object-contain mx-auto mb-4" />
           <h1 className="text-xl font-bold text-gray-900 mb-2">{quiz.title}</h1>
           <p className="text-gray-500">
             {isBeforeOpen
@@ -40,10 +42,10 @@ export default async function StudentQuizPage({
     )
   }
 
-  // Fetch questions and options, stripping is_correct but keeping scoring_mode
+  // Fetch questions and options, stripping is_correct but keeping scoring_mode and question_type
   const { data: questions } = await supabase
     .from('questions')
-    .select('id, quiz_id, question_text, points, sort_order, scoring_mode, answer_options(id, question_id, option_text, sort_order, is_correct)')
+    .select('id, quiz_id, question_text, points, sort_order, scoring_mode, question_type, answer_options(id, question_id, option_text, sort_order, is_correct)')
     .eq('quiz_id', quiz.id)
     .order('sort_order')
 
@@ -57,6 +59,7 @@ export default async function StudentQuizPage({
       points: q.points as number,
       sort_order: q.sort_order as number,
       correct_count,
+      question_type: ((q.question_type ?? 'multiple') as import('@/types/database').QuestionType),
       scoring_mode: (q.scoring_mode ?? null) as import('@/types/database').ScoringMode | null,
       answer_options: opts
         .sort((a, b) => a.sort_order - b.sort_order)

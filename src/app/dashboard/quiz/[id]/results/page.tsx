@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { adminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
 import type { Quiz, Submission } from '@/types/database'
+import ResultsTabs from './ResultsTabs'
 
 export default async function ResultsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -19,6 +20,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
 
   if (!quiz) notFound()
 
+  // Fetch all submitted submissions
   const { data: submissions } = await adminClient
     .from('submissions')
     .select('*')
@@ -36,6 +38,43 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
   const avgPct = subs.length > 0 && subs[0].max_possible_score
     ? Math.round(subs.reduce((sum, s) => sum + ((s.total_score ?? 0) / (s.max_possible_score ?? 1)), 0) / subs.length * 100)
     : null
+
+  // Fetch aggregate data for the summary tab
+  const { data: questions } = await adminClient
+    .from('questions')
+    .select('id, question_text, sort_order, answer_options(id, option_text, is_correct, sort_order)')
+    .eq('quiz_id', id)
+    .order('sort_order')
+
+  // Fetch all student_answers for this quiz's submissions
+  const submissionIds = subs.map(s => s.id)
+  const { data: allAnswers } = submissionIds.length > 0
+    ? await adminClient
+        .from('student_answers')
+        .select('question_id, selected_option_id')
+        .in('submission_id', submissionIds)
+    : { data: [] }
+
+  // Count selections per option
+  const selectionCounts = new Map<string, number>()
+  for (const ans of allAnswers ?? []) {
+    selectionCounts.set(ans.selected_option_id, (selectionCounts.get(ans.selected_option_id) ?? 0) + 1)
+  }
+
+  // Build aggregate questions structure
+  const aggregateQuestions = (questions ?? []).map(q => ({
+    id: q.id,
+    question_text: q.question_text,
+    sort_order: q.sort_order as number,
+    options: (q.answer_options as { id: string; option_text: string; is_correct: boolean; sort_order: number }[])
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map(o => ({
+        id: o.id,
+        option_text: o.option_text,
+        is_correct: o.is_correct,
+        count: selectionCounts.get(o.id) ?? 0,
+      })),
+  }))
 
   return (
     <div>
@@ -63,7 +102,6 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
         <StatCard label="Gennemsnit %" value={avgPct != null ? `${avgPct}%` : '—'} />
       </div>
 
-      {/* Submissions table */}
       {subs.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
           <p className="text-gray-500">Ingen besvarelser endnu.</p>
@@ -82,46 +120,11 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Elev</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Score</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">%</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Indsendt</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {subs.map(sub => {
-                const pct = sub.max_possible_score
-                  ? Math.round(((sub.total_score ?? 0) / sub.max_possible_score) * 100)
-                  : 0
-                return (
-                  <tr key={sub.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-gray-900">{sub.student_name || '(anonym)'}</div>
-                      {sub.student_email && (
-                        <div className="text-gray-400 text-xs">{sub.student_email}</div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-gray-700">
-                      {sub.total_score ?? 0} / {sub.max_possible_score ?? 0}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`font-medium ${pct >= 70 ? 'text-green-600' : pct >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
-                        {pct}%
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-gray-400 text-xs">
-                      {sub.submitted_at ? new Date(sub.submitted_at).toLocaleDateString('da-DK') : '—'}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+        <ResultsTabs
+          submissions={subs}
+          aggregateQuestions={aggregateQuestions}
+          quizId={id}
+        />
       )}
     </div>
   )

@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { debounce } from '@/lib/debounce'
-import type { QuizWithQuestions, QuestionWithOptions, AnswerOption, ScoringMode } from '@/types/database'
+import type { QuizWithQuestions, QuestionWithOptions, AnswerOption, ScoringMode, QuestionType } from '@/types/database'
 import Link from 'next/link'
 
 interface Props {
@@ -323,8 +323,29 @@ function QuestionCard({ question, index, onUpdate, onDelete, onAddOption, onDele
         </div>
       </div>
 
-      {/* Per-question scoring mode override */}
-      <div className="ml-7 mb-3">
+      {/* Per-question controls: type + scoring mode */}
+      <div className="ml-7 mb-3 flex items-center gap-2 flex-wrap">
+        <select
+          value={question.question_type ?? 'multiple'}
+          onChange={e => {
+            const qt = e.target.value as QuestionType
+            const patch: Partial<QuestionWithOptions> = { question_type: qt }
+            // When switching to single, ensure at most one correct answer
+            if (qt === 'single') {
+              const firstCorrect = question.answer_options.find(o => o.is_correct)
+              if (firstCorrect) {
+                question.answer_options.forEach(o => {
+                  if (o.is_correct && o.id !== firstCorrect.id) onUpdateOption(o.id, { is_correct: false })
+                })
+              }
+            }
+            onUpdate(patch)
+          }}
+          className="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400 text-gray-500"
+        >
+          <option value="multiple">Flere svar</option>
+          <option value="single">Enkelt svar</option>
+        </select>
         <select
           value={question.scoring_mode ?? ''}
           onChange={e => onUpdate({ scoring_mode: (e.target.value as ScoringMode) || null })}
@@ -343,11 +364,20 @@ function QuestionCard({ question, index, onUpdate, onDelete, onAddOption, onDele
         {question.answer_options.map(option => (
           <div key={option.id} className="flex items-center gap-2">
             <input
-              type="checkbox"
+              type={question.question_type === 'single' ? 'radio' : 'checkbox'}
+              name={question.question_type === 'single' ? `editor-q-${question.id}` : undefined}
               checked={option.is_correct}
-              onChange={e => onUpdateOption(option.id, { is_correct: e.target.checked })}
-              className="rounded text-green-600 shrink-0"
-              title="Mark as correct"
+              onChange={e => {
+                if (question.question_type === 'single' && e.target.checked) {
+                  // Unmark all others first, then mark this one
+                  question.answer_options.forEach(o => {
+                    if (o.id !== option.id && o.is_correct) onUpdateOption(o.id, { is_correct: false })
+                  })
+                }
+                onUpdateOption(option.id, { is_correct: e.target.checked })
+              }}
+              className="rounded text-green-600 shrink-0 accent-green-600"
+              title="Markér som korrekt"
             />
             <input
               value={option.option_text}

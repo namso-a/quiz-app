@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import type { QuestionPublic, ScoringMode } from '@/types/database'
+import Image from 'next/image'
+import type { QuestionPublic } from '@/types/database'
 import CountdownTimer from './CountdownTimer'
 
 interface QuizMeta {
@@ -60,18 +61,22 @@ export default function QuizPlayer({ quiz, questions }: Props) {
     setPhase('quiz')
   }
 
-  function toggleAnswer(questionId: string, optionId: string, correctCount: number, scoringMode: ScoringMode) {
+  function toggleAnswer(questionId: string, optionId: string, questionType: 'single' | 'multiple') {
     setAnswers(prev => {
+      if (questionType === 'single') {
+        // Radio behaviour: selecting replaces any existing selection
+        const current = prev[questionId]
+        if (current?.has(optionId) && current.size === 1) {
+          // Clicking the already-selected option deselects it
+          return { ...prev, [questionId]: new Set() }
+        }
+        return { ...prev, [questionId]: new Set([optionId]) }
+      }
+      // Multiple-choice checkbox behaviour
       const current = new Set(prev[questionId] ?? [])
       if (current.has(optionId)) {
         current.delete(optionId)
       } else {
-        // Enforce selection limit for proportional_no_penalty
-        if (scoringMode === 'proportional_no_penalty' && current.size >= correctCount) {
-          // Remove oldest selection and add new one
-          const first = Array.from(current)[0]
-          current.delete(first)
-        }
         current.add(optionId)
       }
       return { ...prev, [questionId]: current }
@@ -112,6 +117,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
     return (
       <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white rounded-xl border border-gray-200 p-8">
+          <Image src="/fm_logo.png" alt="Fredens Akademi" width={36} height={36} className="object-contain mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-1">{quiz.title}</h1>
           {quiz.description && <p className="text-gray-500 text-sm mb-6">{quiz.description}</p>}
           <div className="space-y-4">
@@ -160,7 +166,10 @@ export default function QuizPlayer({ quiz, questions }: Props) {
       <main className="min-h-screen bg-gray-50 py-8 px-4">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-xl font-bold text-gray-900">{quiz.title}</h1>
+            <div className="flex items-center gap-2.5">
+              <Image src="/fm_logo.png" alt="Fredens Akademi" width={28} height={28} className="object-contain shrink-0" />
+              <h1 className="text-xl font-bold text-gray-900">{quiz.title}</h1>
+            </div>
             {quiz.time_limit_minutes && startedAt && (
               <CountdownTimer
                 startedAt={startedAt}
@@ -195,16 +204,6 @@ export default function QuizPlayer({ quiz, questions }: Props) {
                     <span className="text-xs text-gray-400 shrink-0 ml-4">{q.points} pts</span>
                   </div>
 
-                  {/* Effective scoring mode: question override or quiz default */}
-                  {(() => {
-                    const effectiveMode = q.scoring_mode ?? quiz.scoring_mode
-                    return effectiveMode === 'proportional_no_penalty' && q.correct_count > 1 ? (
-                      <p className="text-xs text-blue-600 mb-2">
-                        Vælg op til {q.correct_count} svar
-                      </p>
-                    ) : null
-                  })()}
-
                   <div className="space-y-2">
                     {q.answer_options.map(opt => (
                       <label
@@ -216,10 +215,11 @@ export default function QuizPlayer({ quiz, questions }: Props) {
                         }`}
                       >
                         <input
-                          type="checkbox"
+                          type={q.question_type === 'single' ? 'radio' : 'checkbox'}
+                          name={q.question_type === 'single' ? `q-${q.id}` : undefined}
                           checked={selected.has(opt.id)}
-                          onChange={() => toggleAnswer(q.id, opt.id, q.correct_count, q.scoring_mode ?? quiz.scoring_mode)}
-                          className="rounded text-blue-600"
+                          onChange={() => toggleAnswer(q.id, opt.id, q.question_type)}
+                          className={q.question_type === 'single' ? 'accent-brand' : 'rounded text-blue-600'}
                         />
                         <span className="text-sm text-gray-700">{opt.option_text}</span>
                       </label>

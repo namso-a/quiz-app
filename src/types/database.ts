@@ -31,6 +31,8 @@ export interface Quiz {
   question_count?: number
 }
 
+export type QuestionType = 'single' | 'multiple'
+
 export interface Question {
   id: string
   quiz_id: string
@@ -38,6 +40,7 @@ export interface Question {
   points: number
   // null = inherit the quiz's scoring_mode
   scoring_mode: ScoringMode | null
+  question_type: QuestionType
   sort_order: number
   created_at: string
 }
@@ -66,6 +69,7 @@ export interface QuestionPublic {
   points: number
   sort_order: number
   correct_count: number
+  question_type: QuestionType
   scoring_mode: ScoringMode | null  // null = use quiz default
   answer_options: AnswerOptionPublic[]
 }
