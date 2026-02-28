@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Image from 'next/image'
-import type { QuestionPublic } from '@/types/database'
+import type { QuestionPublic, ScoringMode } from '@/types/database'
 import CountdownTimer from './CountdownTimer'
 
 interface QuizMeta {
