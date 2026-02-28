@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { QuestionPublic, ScoringMode } from '@/types/database'
@@ -24,19 +24,69 @@ interface Props {
 
 type Phase = 'info' | 'quiz' | 'submitting'
 
+interface SavedSession {
+  submissionId: string
+  startedAt: string
+  studentName: string
+  studentEmail: string
+  answers: Record<string, string[]>
+}
+
+function loadSession(shareCode: string): SavedSession | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem(`quiz_session_${shareCode}`)
+    return raw ? (JSON.parse(raw) as SavedSession) : null
+  } catch {
+    return null
+  }
+}
+
 export default function QuizPlayer({ quiz, questions }: Props) {
   const supabase = createClient()
   const router = useRouter()
 
-  const [phase, setPhase] = useState<Phase>(
-    quiz.require_name || quiz.require_email ? 'info' : 'quiz'
-  )
-  const [studentName, setStudentName] = useState('')
-  const [studentEmail, setStudentEmail] = useState('')
-  const [submissionId, setSubmissionId] = useState<string | null>(null)
-  const [startedAt, setStartedAt] = useState<string | null>(null)
-  const [answers, setAnswers] = useState<Record<string, Set<string>>>({})
+  // Restore session from localStorage on first render (synchronous lazy init)
+  const [saved] = useState<SavedSession | null>(() => loadSession(quiz.share_code))
+
+  const [phase, setPhase] = useState<Phase>(() => {
+    if (saved) return 'quiz'
+    return quiz.require_name || quiz.require_email ? 'info' : 'quiz'
+  })
+  const [studentName, setStudentName] = useState(saved?.studentName ?? '')
+  const [studentEmail, setStudentEmail] = useState(saved?.studentEmail ?? '')
+  const [submissionId, setSubmissionId] = useState<string | null>(saved?.submissionId ?? null)
+  const [startedAt, setStartedAt] = useState<string | null>(saved?.startedAt ?? null)
+  const [answers, setAnswers] = useState<Record<string, Set<string>>>(() => {
+    if (!saved) return {}
+    return Object.fromEntries(
+      Object.entries(saved.answers).map(([k, v]) => [k, new Set(v)])
+    )
+  })
   const [error, setError] = useState<string | null>(null)
+
+  // Persist session to localStorage on every answer change
+  useEffect(() => {
+    if (phase !== 'quiz' || !submissionId) return
+    try {
+      const session: SavedSession = {
+        submissionId,
+        startedAt: startedAt ?? '',
+        studentName,
+        studentEmail,
+        answers: Object.fromEntries(
+          Object.entries(answers).map(([k, v]) => [k, Array.from(v)])
+        ),
+      }
+      localStorage.setItem(`quiz_session_${quiz.share_code}`, JSON.stringify(session))
+    } catch {
+      // Ignore storage quota errors
+    }
+  }, [answers, phase, submissionId])
+
+  function clearSession() {
+    try { localStorage.removeItem(`quiz_session_${quiz.share_code}`) } catch { /* ignore */ }
+  }
 
   async function startQuiz() {
     setError(null)
@@ -63,15 +113,12 @@ export default function QuizPlayer({ quiz, questions }: Props) {
   function toggleAnswer(questionId: string, optionId: string, questionType: 'single' | 'multiple') {
     setAnswers(prev => {
       if (questionType === 'single') {
-        // Radio behaviour: selecting replaces any existing selection
         const current = prev[questionId]
         if (current?.has(optionId) && current.size === 1) {
-          // Clicking the already-selected option deselects it
           return { ...prev, [questionId]: new Set() }
         }
         return { ...prev, [questionId]: new Set([optionId]) }
       }
-      // Multiple-choice checkbox behaviour
       const current = new Set(prev[questionId] ?? [])
       if (current.has(optionId)) {
         current.delete(optionId)
@@ -106,6 +153,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
       return
     }
 
+    clearSession()
     router.push(`/q/${quiz.share_code}/result/${submissionId}`)
   }
 
