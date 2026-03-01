@@ -166,7 +166,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
         <div className="w-full max-w-md bg-white rounded-xl border border-gray-200 p-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">{quiz.title}</h1>
           {quiz.description && (
-            <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap mb-6">{quiz.description}</p>
+            <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap break-words mb-6">{quiz.description}</p>
           )}
           <div className="space-y-4">
             {needsName && (
@@ -225,7 +225,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
           </div>
 
           {quiz.description && (
-            <p className="text-gray-500 text-sm leading-relaxed whitespace-pre-wrap mb-4">{quiz.description}</p>
+            <p className="text-gray-500 text-sm leading-relaxed whitespace-pre-wrap break-words mb-4">{quiz.description}</p>
           )}
 
           {/* Progress indicator */}
