@@ -16,15 +16,24 @@ export default async function SubmissionDetailPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
-  // Verify quiz ownership
+  // Verify quiz access (owner or collaborator)
   const { data: quiz } = await supabase
     .from('quizzes')
     .select('id, title, scoring_mode, share_code, teacher_id')
     .eq('id', quizId)
-    .eq('teacher_id', user.id)
     .single()
 
   if (!quiz) notFound()
+
+  if (quiz.teacher_id !== user.id) {
+    const { data: collab } = await adminClient
+      .from('quiz_collaborators')
+      .select('teacher_id')
+      .eq('quiz_id', quizId)
+      .eq('teacher_id', user.id)
+      .single()
+    if (!collab) notFound()
+  }
 
   // Fetch submission
   const { data: submission } = await adminClient

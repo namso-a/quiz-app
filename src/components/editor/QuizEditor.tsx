@@ -6,12 +6,20 @@ import { debounce } from '@/lib/debounce'
 import type { QuizWithQuestions, QuestionWithOptions, AnswerOption, ScoringMode, QuestionType } from '@/types/database'
 import Link from 'next/link'
 
+interface Collaborator {
+  teacher_id: string
+  name: string
+  email: string
+}
+
 interface Props {
   quiz: QuizWithQuestions
   appUrl: string
+  collaborators: Collaborator[]
+  isOwner: boolean
 }
 
-export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
+export default function QuizEditor({ quiz: initialQuiz, appUrl, collaborators, isOwner }: Props) {
   const supabase = createClient()
   const [quiz, setQuiz] = useState(initialQuiz)
   const [saving, setSaving] = useState(false)
@@ -272,6 +280,8 @@ export default function QuizEditor({ quiz: initialQuiz, appUrl }: Props) {
       >
         + Tilføj spørgsmål
       </button>
+
+      <CollaboratorSection quizId={quiz.id} isOwner={isOwner} initialCollaborators={collaborators} />
     </div>
   )
 }
@@ -409,6 +419,101 @@ function QuestionCard({ question, index, onUpdate, onDelete, onAddOption, onDele
           </button>
         )}
       </div>
+    </div>
+  )
+}
+
+// ── Collaborator management ───────────────────────────────────────────────────
+
+function CollaboratorSection({
+  quizId,
+  isOwner,
+  initialCollaborators,
+}: {
+  quizId: string
+  isOwner: boolean
+  initialCollaborators: { teacher_id: string; name: string; email: string }[]
+}) {
+  const [collaborators, setCollaborators] = useState(initialCollaborators)
+  const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function addCollaborator() {
+    if (!email) return
+    setLoading(true)
+    setError(null)
+    const res = await fetch('/api/collaborators', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quiz_id: quizId, email }),
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      setError(data.error)
+    } else {
+      setCollaborators(prev => [...prev, { teacher_id: data.teacher_id, name: data.name, email: data.email }])
+      setEmail('')
+    }
+    setLoading(false)
+  }
+
+  async function removeCollaborator(teacherId: string) {
+    await fetch('/api/collaborators', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quiz_id: quizId, teacher_id: teacherId }),
+    })
+    setCollaborators(prev => prev.filter(c => c.teacher_id !== teacherId))
+  }
+
+  return (
+    <div className="mt-6 bg-white rounded-xl border border-gray-200 p-5">
+      <h3 className="text-sm font-semibold text-gray-700 mb-3">Samarbejdspartnere</h3>
+
+      {collaborators.length === 0 ? (
+        <p className="text-xs text-gray-400 mb-3">Ingen samarbejdspartnere endnu.</p>
+      ) : (
+        <div className="space-y-2 mb-4">
+          {collaborators.map(c => (
+            <div key={c.teacher_id} className="flex items-center justify-between">
+              <div>
+                <span className="text-sm text-gray-800">{c.name}</span>
+                <span className="text-xs text-gray-400 ml-2">{c.email}</span>
+              </div>
+              {isOwner && (
+                <button
+                  onClick={() => removeCollaborator(c.teacher_id)}
+                  className="text-xs text-red-400 hover:text-red-600 transition-colors"
+                >
+                  Fjern
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {isOwner && (
+        <div className="flex gap-2">
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && addCollaborator()}
+            placeholder="Kollegas e-mail"
+            className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            onClick={addCollaborator}
+            disabled={!email || loading}
+            className="text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors"
+          >
+            {loading ? '…' : 'Tilføj'}
+          </button>
+        </div>
+      )}
+      {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
     </div>
   )
 }

@@ -15,10 +15,19 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
     .from('quizzes')
     .select('*')
     .eq('id', id)
-    .eq('teacher_id', user.id)
     .single()
 
   if (!quiz) notFound()
+
+  if (quiz.teacher_id !== user.id) {
+    const { data: collab } = await adminClient
+      .from('quiz_collaborators')
+      .select('teacher_id')
+      .eq('quiz_id', id)
+      .eq('teacher_id', user.id)
+      .single()
+    if (!collab) notFound()
+  }
 
   // Fetch all submitted submissions
   const { data: submissions } = await adminClient
