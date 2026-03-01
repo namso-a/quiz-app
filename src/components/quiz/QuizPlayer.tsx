@@ -164,8 +164,10 @@ export default function QuizPlayer({ quiz, questions }: Props) {
     return (
       <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white rounded-xl border border-gray-200 p-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">{quiz.title}</h1>
-          {quiz.description && <p className="text-gray-500 text-sm mb-6">{quiz.description}</p>}
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{quiz.title}</h1>
+          {quiz.description && (
+            <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap mb-6">{quiz.description}</p>
+          )}
           <div className="space-y-4">
             {needsName && (
               <div>
@@ -211,7 +213,7 @@ export default function QuizPlayer({ quiz, questions }: Props) {
     return (
       <main className="min-h-screen bg-gray-50 py-8 px-4">
         <div className="max-w-2xl mx-auto">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-1">
             <h1 className="text-xl font-bold text-gray-900">{quiz.title}</h1>
             {quiz.time_limit_minutes && startedAt && (
               <CountdownTimer
@@ -221,6 +223,10 @@ export default function QuizPlayer({ quiz, questions }: Props) {
               />
             )}
           </div>
+
+          {quiz.description && (
+            <p className="text-gray-500 text-sm leading-relaxed whitespace-pre-wrap mb-4">{quiz.description}</p>
+          )}
 
           {/* Progress indicator */}
           <div className="flex items-center gap-3 mb-6">
