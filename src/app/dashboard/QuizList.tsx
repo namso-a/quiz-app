@@ -139,9 +139,6 @@ function QuizCard({ quiz, confirmDelete, archiveLabel = 'Arkiver', onArchive, on
             </span>
           )}
         </div>
-        {quiz.description && (
-          <p className="text-sm text-gray-500 mt-0.5 truncate">{quiz.description}</p>
-        )}
         <p className="text-xs text-gray-400 mt-1 flex items-center gap-2">
           <span>{SCORING_LABELS[quiz.scoring_mode] ?? quiz.scoring_mode}</span>
           {quiz.question_count !== undefined && (
