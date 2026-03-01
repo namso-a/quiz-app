@@ -224,10 +224,6 @@ export default function QuizPlayer({ quiz, questions }: Props) {
             )}
           </div>
 
-          {quiz.description && (
-            <p className="text-gray-500 text-sm leading-relaxed whitespace-pre-wrap break-words mb-4">{quiz.description}</p>
-          )}
-
           {/* Progress indicator */}
           <div className="flex items-center gap-3 mb-6">
             <div className="flex-1 bg-gray-200 rounded-full h-1.5">
