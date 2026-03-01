@@ -37,11 +37,14 @@ export default async function EditQuizPage({ params }: { params: Promise<{ id: s
     .select('teacher_id, teachers(name, email)')
     .eq('quiz_id', id)
 
-  const collaborators = (collabData ?? []).map(c => ({
-    teacher_id: c.teacher_id as string,
-    name: (c.teachers as { name: string; email: string } | null)?.name ?? '',
-    email: (c.teachers as { name: string; email: string } | null)?.email ?? '',
-  }))
+  const collaborators = (collabData ?? []).map(c => {
+    const t = (c.teachers as unknown as { name: string; email: string } | null)
+    return {
+      teacher_id: c.teacher_id as string,
+      name: t?.name ?? '',
+      email: t?.email ?? '',
+    }
+  })
 
   const sortedQuiz: QuizWithQuestions = {
     ...quiz,
